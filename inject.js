@@ -1,4 +1,4 @@
-chrome.extension.sendMessage({}, function(response) {
+browser.runtime.sendMessage({}, function(response) {
   var tc = {
     settings: {
       speed: 1.0,           // default 1x
@@ -23,7 +23,7 @@ chrome.extension.sendMessage({}, function(response) {
     }
   };
 
-  chrome.storage.sync.get(tc.settings, function(storage) {
+  browser.storage.local.get(tc.settings, function(storage) {
     tc.settings.speed = Number(storage.speed);
     tc.settings.resetSpeed = Number(storage.resetSpeed);
     tc.settings.speedStep = Number(storage.speedStep);
@@ -67,7 +67,7 @@ chrome.extension.sendMessage({}, function(response) {
         var speed = this.getSpeed();
         this.speedIndicator.textContent = speed;
         tc.settings.speed = speed;
-        chrome.storage.sync.set({'speed': speed});
+        browser.storage.local.set({'speed': speed});
       }.bind(this));
 
       target.playbackRate = tc.settings.speed;
@@ -95,20 +95,20 @@ chrome.extension.sendMessage({}, function(response) {
       var wrapper = document.createElement('div');
       wrapper.classList.add('vsc-controller');
       wrapper.dataset['vscid'] = this.id;
-      wrapper.addEventListener('dblclick', prevent, true);
-      wrapper.addEventListener('mousedown', prevent, true);
-      wrapper.addEventListener('click', prevent, true);
+      wrapper.addEventListener('dblclick', prevent, false);
+      wrapper.addEventListener('mousedown', prevent, false);
+      wrapper.addEventListener('click', prevent, false);
 
       if (tc.settings.startHidden) {
         wrapper.classList.add('vsc-hidden');
       }
 
-      var shadow = wrapper.createShadowRoot();
+      var shadow = document.createElement("div");
+      wrapper.appendChild(shadow);
       var shadowTemplate = `
         <style>
-          @import "${chrome.extension.getURL('shadow.css')}";
+          @import "${browser.extension.getURL('shadow.css')}";
         </style>
-
         <div id="controller" style="top:${top}; left:${left}">
           <span data-action="drag" class="draggable">${speed}</span>
           <span id="controls">
@@ -126,9 +126,7 @@ chrome.extension.sendMessage({}, function(response) {
       });
 
       forEach.call(shadow.querySelectorAll('button'), function(button) {
-        button.onclick = (e) => {
-          runAction(e.target.dataset['action'], document);
-        }
+        button.onclick = (e) =>  runAction(e.target.dataset['action'], document);
       });
 
       this.speedIndicator = shadow.querySelector('span');
@@ -180,7 +178,7 @@ chrome.extension.sendMessage({}, function(response) {
         defineVideoController();
       } else {
         var link = document.createElement('link');
-        link.href = chrome.extension.getURL('inject.css');
+        link.href = browser.extension.getURL('inject.css');
         link.type = 'text/css';
         link.rel = 'stylesheet';
         document.head.appendChild(link);
@@ -310,7 +308,7 @@ chrome.extension.sendMessage({}, function(response) {
             v.playbackRate = tc.settings.resetSpeed;
           } else {
             tc.settings.resetSpeed = v.playbackRate;
-            chrome.storage.sync.set({'resetSpeed': v.playbackRate});
+            browser.storage.local.set({'resetSpeed': v.playbackRate});
             v.playbackRate = 1.0;
           }
         } else if (action === 'close') {

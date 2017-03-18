@@ -66,7 +66,7 @@ function recordKeyPress(e) {
 };
 
 function inputFilterNumbersOnly(e) {
-  var char = String.fromCharCode(e.keyCode);
+  var char = e.key;
   if (!/[\d\.]$/.test(char) || !/^\d+(\.\d*)?$/.test(e.target.value + char)) {
     e.preventDefault();
     e.stopPropagation();
@@ -112,7 +112,7 @@ function save_options() {
   fasterKeyCode = isNaN(fasterKeyCode) ? tcDefaults.fasterKeyCode : fasterKeyCode;
   displayKeyCode = isNaN(displayKeyCode) ? tcDefaults.displayKeyCode : displayKeyCode;
 
-  chrome.storage.sync.set({
+  browser.storage.local.set({
     speedStep:      speedStep,
     rewindTime:     rewindTime,
     advanceTime:    advanceTime,
@@ -135,9 +135,8 @@ function save_options() {
   });
 }
 
-// Restores options from chrome.storage
-function restore_options() {
-  chrome.storage.sync.get(tcDefaults, function(storage) {
+// Restores options
+function restore_options(storage) {
     document.getElementById('speedStep').value = storage.speedStep.toFixed(2);
     document.getElementById('rewindTime').value = storage.rewindTime;
     document.getElementById('advanceTime').value = storage.advanceTime;
@@ -150,12 +149,18 @@ function restore_options() {
     document.getElementById('rememberSpeed').checked = storage.rememberSpeed;
     document.getElementById('startHidden').checked = storage.startHidden;
     document.getElementById('blacklist').value = storage.blacklist;
-  });
+}
+
+// Restores options from browser.storage
+function restore_from_store() {
+    browser.storage.local.get(tcDefaults, function(storage) {
+        restore_options(storage);
+    });
 }
 
 function restore_defaults() {
-  chrome.storage.sync.set(tcDefaults, function() {
-    restore_options();
+  browser.storage.local.set(tcDefaults, function() {
+    restore_from_store();
     // Update status to let user know options were saved.
     var status = document.getElementById('status');
     status.textContent = 'Default options restored';
@@ -172,7 +177,7 @@ function initShortcutInput(inputId) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-  restore_options();
+  restore_from_store();
 
   document.getElementById('save').addEventListener('click', save_options);
   document.getElementById('restore').addEventListener('click', restore_defaults);

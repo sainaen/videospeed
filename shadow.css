@@ -1,10 +1,10 @@
-* {
+#controller {
   line-height: 1.8em;
   font-family: Verdana, Geneva, sans-serif;
   font-size: 13px;
 }
 
-:host(:hover) #controls {
+#controller:hover #controls {
   display: inline;
 }
 
@@ -46,15 +46,15 @@
   display: inline;
 }
 
-.draggable {
+#controller .draggable {
   cursor: -webkit-grab;
 }
 
-.draggable:active {
+#controller .draggable:active {
   cursor: -webkit-grabbing;
 }
 
-button {
+#controller button {
   cursor: pointer;
   color: black;
   background: white;
@@ -68,23 +68,23 @@ button {
   margin-bottom: 2px;
 }
 
-button:focus {
+#controller button:focus {
   outline: 0;
 }
 
-button:hover {
+#controller button:hover {
   opacity: 1.0;
 }
 
-button:active {
+#controller button:active {
   background: #ccc;
 }
 
-button.rw {
+#controller button.rw {
   opacity: 0.65;
 }
 
-button.hideButton {
+#controller button.hideButton {
   margin-right: 2px;
   opacity: 0.5;
 }
